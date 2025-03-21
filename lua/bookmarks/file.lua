@@ -10,7 +10,7 @@ function File:new(path, pos)
 end
 
 function File:from_string(s)
-  local _, _, pretty_path, row, col = string.find(s, '(.+) {(%d+), (%d+)}')
+  local _, _, pretty_path, row, col = string.find(s, '(.+) |(%d+), (%d+)|')
   if pretty_path == nil or row == nil or col == nil then
     return nil
   end
@@ -18,7 +18,7 @@ function File:from_string(s)
 end
 
 function File:to_string()
-  return string.format('%s {%d, %d}', self:pretty_path(), self.pos[1], self.pos[2])
+  return string.format('%s |%d, %d|', self:pretty_path(), self.pos[1], self.pos[2])
 end
 
 function File:edit()
