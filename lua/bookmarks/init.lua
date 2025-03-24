@@ -87,6 +87,7 @@ function M.toggle_menu()
 
   local path = vim.api.nvim_buf_get_name(0)
   local row, _ = M.shada:get(M.namespace, File:new(path, nil))
+
   Window:new(M.bookmark_manager.buf, M.cwd, M.namespace, row)
 end
 
@@ -113,9 +114,9 @@ end
 
 local function create_autocommands()
   local group = vim.api.nvim_create_augroup(defaults.augroup, {})
-  vim.api.nvim_create_autocmd('VimLeave', {group = group, pattern = '*', callback = on_vim_leave})
-  vim.api.nvim_create_autocmd('BufLeave', {group = group, pattern = '*', callback = on_buf_leave})
-  vim.api.nvim_create_autocmd('DirChangedPre', {group = group, pattern = '*', callback = on_dir_changed})
+  vim.api.nvim_create_autocmd('VimLeave', {group = group, callback = on_vim_leave})
+  vim.api.nvim_create_autocmd('BufLeave', {group = group, callback = on_buf_leave})
+  vim.api.nvim_create_autocmd('DirChangedPre', {group = group, callback = on_dir_changed})
 end
 
 function M.setup()
