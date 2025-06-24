@@ -136,6 +136,11 @@ function Shada:save()
 
   local data = vim.json.encode(self.data)
 
+  if vim.fn.mkdir(vim.fn.fnamemodify(self.path, ':p:h'), 'p') == 0 then
+    Log.error('Failed to create data directory')
+    return
+  end
+
   if vim.fn.writefile({data}, self.path) == -1 then
     Log.error('Failed to save data')
     return
