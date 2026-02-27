@@ -1,9 +1,9 @@
-Buffer = require('bookmarks.buffer')
-File = require('bookmarks.file')
-Namespace = require('bookmarks.namespace')
-Shada = require('bookmarks.shada')
-Window = require('bookmarks.window')
-Bookmarks = {}
+local Buffer = require('bookmarks.buffer')
+local File = require('bookmarks.file')
+local Namespace = require('bookmarks.namespace')
+local Shada = require('bookmarks.shada')
+local Window = require('bookmarks.window')
+local Bookmarks = {}
 
 local defaults = {
   augroup = 'Bookmarks',
@@ -41,7 +41,7 @@ end
 function Bookmarks.open_next()
   local path = vim.api.nvim_buf_get_name(0)
   local f = File:new(path, nil)
-  local i, _ = Bookmarks.shada:get(Bookmarks.namespace, f)
+  local i = Bookmarks.shada:get(Bookmarks.namespace, f)
   if i == nil then
     Bookmarks.open(1)
   else
@@ -52,7 +52,7 @@ end
 function Bookmarks.open_previous()
   local path = vim.api.nvim_buf_get_name(0)
   local f = File:new(path, nil)
-  local i, _ = Bookmarks.shada:get(Bookmarks.namespace, f)
+  local i = Bookmarks.shada:get(Bookmarks.namespace, f)
   if i == nil then
     Bookmarks.open(Bookmarks.shada:length(Bookmarks.namespace))
   else
@@ -75,6 +75,7 @@ end
 function Bookmarks.toggle_menu()
   if Bookmarks.bookmark_manager ~= nil then
     Bookmarks.bookmark_manager:close()
+    return
   end
 
   local callbacks = {
@@ -86,9 +87,9 @@ function Bookmarks.toggle_menu()
   Bookmarks.bookmark_manager = Buffer:new(Bookmarks.shada:files(Bookmarks.namespace), defaults.augroup, callbacks)
 
   local path = vim.api.nvim_buf_get_name(0)
-  local row, _ = Bookmarks.shada:get(Bookmarks.namespace, File:new(path, nil))
+  local row = Bookmarks.shada:get(Bookmarks.namespace, File:new(path, nil))
 
-  Window:new(Bookmarks.bookmark_manager.buf, Bookmarks.cwd, Bookmarks.namespace, row)
+  Window.create(Bookmarks.bookmark_manager.buf, Bookmarks.cwd, Bookmarks.namespace, row)
 end
 
 local function on_vim_leave(_)

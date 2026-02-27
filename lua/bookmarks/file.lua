@@ -1,9 +1,7 @@
-File = {
-  pos = {1, 0},
-}
+local File = {}
 
 function File:new(path, pos)
-  local f = {path = path, pos = pos}
+  local f = {path = path, pos = pos or {1, 0}}
   setmetatable(f, self)
   self.__index = self
   return f

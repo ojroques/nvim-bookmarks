@@ -1,4 +1,4 @@
-Log = {
+local Log = {
   tag = 'nvim-bookmarks',
 }
 

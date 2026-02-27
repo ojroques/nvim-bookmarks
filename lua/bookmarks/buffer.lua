@@ -1,5 +1,11 @@
-File = require('bookmarks.file')
-Buffer = {}
+local File = require('bookmarks.file')
+local Buffer = {}
+
+local function invoke(callbacks, name, ...)
+  if callbacks and callbacks[name] then
+    callbacks[name](...)
+  end
+end
 
 function Buffer:new(files, augroup, callbacks)
   local buf = vim.api.nvim_create_buf(false, true)
@@ -37,7 +43,7 @@ function Buffer:select()
   local file = File:from_string(line[1])
 
   self:close()
-  self:on_select(file)
+  invoke(self.callbacks, 'on_select', file)
 end
 
 function Buffer:write()
@@ -47,9 +53,10 @@ function Buffer:write()
 
   local lines = vim.api.nvim_buf_get_lines(self.buf, 0, -1, false)
   local files = vim.tbl_map(function(l) return File:from_string(l) end, lines)
+  files = vim.tbl_filter(function(f) return f ~= nil end, files)
 
   self:close()
-  self:on_write(files)
+  invoke(self.callbacks, 'on_write', files)
 end
 
 function Buffer:close()
@@ -60,31 +67,7 @@ function Buffer:close()
   vim.api.nvim_buf_delete(self.buf, {force = true})
   self.closed = true
 
-  self:on_close()
-end
-
-function Buffer:on_select(file)
-  if self.callbacks == nil or self.callbacks.on_select == nil then
-    return
-  end
-
-  self.callbacks.on_select(file)
-end
-
-function Buffer:on_write(files)
-  if self.callbacks == nil or self.callbacks.on_write == nil then
-    return
-  end
-
-  self.callbacks.on_write(files)
-end
-
-function Buffer:on_close()
-  if self.callbacks == nil or self.callbacks.on_close == nil then
-    return
-  end
-
-  self.callbacks.on_close()
+  invoke(self.callbacks, 'on_close')
 end
 
 return Buffer

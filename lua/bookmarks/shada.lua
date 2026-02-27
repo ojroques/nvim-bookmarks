@@ -1,6 +1,6 @@
-File = require('bookmarks.file')
-Log = require('bookmarks.log')
-Shada = {}
+local File = require('bookmarks.file')
+local Log = require('bookmarks.log')
+local Shada = {}
 
 function Shada:new(shada_dir, cwd)
   local s = {path = string.format('%s/%s.json', shada_dir, vim.uri_encode(cwd, 'rfc2396')), data = {}}
@@ -32,16 +32,16 @@ end
 
 function Shada:get(namespace, file)
   if self.data[namespace] == nil then
-    return nil, nil
+    return nil
   end
 
   for i, f in ipairs(self.data[namespace]) do
     if f == file then
-      return i, f
+      return i
     end
   end
 
-  return nil, nil
+  return nil
 end
 
 function Shada:update(namespace, file)
@@ -95,14 +95,18 @@ function Shada:length(namespace)
 end
 
 function Shada:clean()
-  for ns, _ in pairs(self.data) do
-    self.data[ns] = vim.tbl_map(function(f) return File:new(f.path, f.pos) end, self.data[ns])
-    self.data[ns] = vim.tbl_filter(function(f) return f:readable() end, self.data[ns])
+  local data = {}
 
-    if vim.tbl_isempty(self.data[ns]) then
-      self:purge(ns)
+  for ns, files in pairs(self.data) do
+    local cleaned = vim.tbl_map(function(f) return File:new(f.path, f.pos) end, files)
+    cleaned = vim.tbl_filter(function(f) return f:readable() end, cleaned)
+
+    if not vim.tbl_isempty(cleaned) then
+      data[ns] = cleaned
     end
   end
+
+  self.data = data
 end
 
 function Shada:purge(namespace)
